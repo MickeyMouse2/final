@@ -8,5 +8,5 @@
         android:title=""
         android:iconTint="#FFFFFF"
         app:showAsAction="always"
-        app:actionViewClass="android.support.v7.widget.SearchView" />
+        app:actionViewClass="androidx.recyclerview.widget.SearchView" />
 </menu>

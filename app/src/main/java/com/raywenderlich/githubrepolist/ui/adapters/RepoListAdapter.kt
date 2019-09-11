@@ -1,67 +1,49 @@
-/*
- * Copyright (c) 2018 Razeware LLC
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
- * distribute, sublicense, create a derivative work, and/or sell copies of the
- * Software in any work that is designed, intended, or marketed for pedagogical or
- * instructional purposes related to programming, coding, application development,
- * or information technology.  Permission for such use, copying, modification,
- * merger, publication, distribution, sublicensing, creation of derivative works,
- * or sale is expressly withheld.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 
 package com.raywenderlich.githubrepolist.ui.adapters
 
-import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.app.AlertDialog
+import android.content.Context
+import android.view.*
+import kotlinx.android.synthetic.main.item_repo.view.*
+import android.widget.SearchView
+import androidx.core.content.ContextCompat.getSystemService
 import com.raywenderlich.githubrepolist.R
-import com.raywenderlich.githubrepolist.data.Item
-import com.raywenderlich.githubrepolist.data.RepoResult
-import com.raywenderlich.githubrepolist.extensions.ctx
-import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.item_repo.view.* //1
+import com.raywenderlich.githubrepolist.data.objects.ItemsItem
+import com.raywenderlich.githubrepolist.util.loadWithUrl
 
-class RepoListAdapter(private val repoList: RepoResult) : RecyclerView.Adapter<RepoListAdapter.ViewHolder>() {
+class RepoListAdapter(
+        var data: List<ItemsItem> = ArrayList(),
+        var itemClick: ((item: ItemsItem) -> Unit?)? = null
+) : androidx.recyclerview.widget.RecyclerView.Adapter<RepoListAdapter.ViewHolder>() {
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    val view = LayoutInflater.from(parent.ctx).inflate(R.layout.item_repo, parent, false) //2
-    return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    val view = LayoutInflater
+            .from(parent.context)
+            .inflate(R.layout.item_repo, parent, false)
+    return ViewHolder(view, itemClick)
   }
 
+  override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bindForecast(data[position])
 
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    holder.bindRepo(repoList.items[position]) //3
-  }
+  override fun getItemCount() = data.size
 
-  override fun getItemCount(): Int = repoList.items.size //4
 
-  class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    fun bindRepo(repo: Item) { //5
-      with(repo) {
-        itemView.repoName.text = repo.login.orEmpty() //7
-        itemView.repoDescription.text = repo.url.orEmpty()
-        Picasso.get().load(repo.avatar_url).into(itemView.icon)
+
+  class ViewHolder(view: View, private val itemClick: ((item: ItemsItem) -> Unit?)? = null) :
+          androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
+
+    fun bindForecast(item: ItemsItem) {
+      with(itemView){
+        userAvatar.loadWithUrl(item.avatarUrl)
+        userName.text = item.login
+        showUserLocation.setOnClickListener {
+          itemClick?.run { item.htmlUrl }
+        }
       }
     }
+
   }
+
+
+
 }
